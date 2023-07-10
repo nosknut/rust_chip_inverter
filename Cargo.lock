@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "chip_inverter"
+name = "chip_uart"
 version = "0.1.0"
 dependencies = [
  "wokwi_chip_ll",

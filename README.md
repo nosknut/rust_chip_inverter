@@ -1,4 +1,4 @@
-# Wokwi Inverter Chip in Rust example
+# Wokwi Uart Chip in Rust example
 
 ## Building
 
@@ -9,7 +9,7 @@ rustup target add wasm32-unknown-unknown
 cargo build --target wasm32-unknown-unknown --release
 ```
 
-Find the resulting binary in `target/wasm32-unknown-unknown/release/chip_inverter.wasm`
+Find the resulting binary in `target/wasm32-unknown-unknown/release/uart_chip.wasm`
 
 ## Simulating
 

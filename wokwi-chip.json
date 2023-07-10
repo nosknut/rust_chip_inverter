@@ -1,12 +1,10 @@
 {
-  "version": 1,
-  "name": "Inverter",
-  "author": "Uri Shaked",
-  "license": "MIT",
+  "name": "Uart Chip",
+  "author": "Knut Ola Nøsen",
   "pins": [
-    "OUT",
-    "IN",
-    "VCC",
-    "GND"
+    "RX",
+    "TX",
+    "GND",
+    "VCC"
   ]
 }
