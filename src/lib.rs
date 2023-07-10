@@ -76,7 +76,12 @@ impl JsonParser {
 #[no_mangle]
 pub unsafe extern "C" fn chipInit() {
     // let mut parser = JsonParser::new();
-    Uart::init("TX", "RX", 115200, |uart, _c| {
-        JsonParser::parse_uart(uart);
-    });
+    Uart::init(
+        "TX",
+        "RX",
+        115200,
+        Box::new(move |uart, _c| {
+            JsonParser::parse_uart(uart);
+        }),
+    );
 }

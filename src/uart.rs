@@ -7,7 +7,7 @@
 use std::{
     collections::HashMap,
     collections::VecDeque,
-    ffi::{c_void, CString},
+    ffi::{c_void, CString}, borrow::BorrowMut,
 };
 
 use wokwi_chip_ll::{debugPrint, pinInit, uartWrite, UARTConfig, UARTDevId, INPUT, INPUT_PULLUP};
@@ -24,7 +24,7 @@ pub fn debug_print_string(s: String) {
 
 type Byte = u8;
 pub type UartId = u32;
-pub type UartOnReadHandler = fn(uart: &mut Uart, c: Byte);
+pub type UartOnReadHandler = Box<dyn Fn(&mut Uart, Byte)>;
 
 #[allow(dead_code)]
 pub struct Uart {
@@ -78,7 +78,7 @@ impl UartManager {
     fn on_uart_rx_data(user_data: *const c_void, byte: u8) {
         if let Some(uart) = UartManager::get(UartManager::get_id(user_data)) {
             uart.in_buffer.push_back(byte);
-            let handler = uart.on_read;
+            let handler: &mut UartOnReadHandler = uart.on_read.borrow_mut();
             handler(uart, byte);
             uart.update_out_buffer();
         };
