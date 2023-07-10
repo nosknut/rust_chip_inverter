@@ -7,7 +7,7 @@
 use std::{
     collections::HashMap,
     collections::VecDeque,
-    ffi::{c_void, CString}, borrow::BorrowMut,
+    ffi::{c_void, CString},
 };
 
 use wokwi_chip_ll::{debugPrint, pinInit, uartWrite, UARTConfig, UARTDevId, INPUT, INPUT_PULLUP};
@@ -30,17 +30,18 @@ pub type UartOnReadHandler = Box<dyn Fn(&mut Uart, Byte)>;
 pub struct Uart {
     id: UartId,
     config: UARTConfig,
-    on_read: UartOnReadHandler,
     device_id: UARTDevId,
     in_buffer: VecDeque<Byte>,
     out_buffer: Vec<Byte>,
 }
 
-static mut INSTANCES: Option<HashMap<UartId, Uart>> = None;
+pub type UartHash = HashMap<UartId, (Uart, UartOnReadHandler)>;
+
+static mut INSTANCES: Option<UartHash> = None;
 
 struct UartManager {}
 impl UartManager {
-    fn get_instances() -> &'static mut HashMap<UartId, Uart> {
+    fn get_instances() -> &'static mut UartHash {
         unsafe {
             if INSTANCES.is_none() {
                 INSTANCES = Some(HashMap::new());
@@ -56,17 +57,17 @@ impl UartManager {
         UartManager::get_instances().len() as UartId
     }
 
-    fn register(uart: Uart) {
-        UartManager::get_instances().insert(uart.id, uart);
+    fn register(uart: Uart, on_read: UartOnReadHandler) {
+        UartManager::get_instances().insert(uart.id, (uart, on_read));
     }
 
-    fn get(id: UartId) -> Option<&'static mut Uart> {
-        let Some(uart) = UartManager::get_instances().get_mut(&id) else {
+    fn get(id: UartId) -> Option<&'static mut (Uart, UartOnReadHandler)> {
+        let Some(uart_hash) = UartManager::get_instances().get_mut(&id) else {
                 debug_print_string(format!("UART with id {} no longer exists", id));
                 return None;
             };
 
-        Some(uart)
+        Some(uart_hash)
     }
 }
 
@@ -76,16 +77,15 @@ impl UartManager {
     }
 
     fn on_uart_rx_data(user_data: *const c_void, byte: u8) {
-        if let Some(uart) = UartManager::get(UartManager::get_id(user_data)) {
+        if let Some((uart, on_read)) = UartManager::get(UartManager::get_id(user_data)) {
             uart.in_buffer.push_back(byte);
-            let handler: &mut UartOnReadHandler = uart.on_read.borrow_mut();
-            handler(uart, byte);
+            on_read(uart, byte);
             uart.update_out_buffer();
         };
     }
 
     fn on_uart_write_done(user_data: *const c_void) {
-        if let Some(uart) = UartManager::get(UartManager::get_id(user_data)) {
+        if let Some((uart, _)) = UartManager::get(UartManager::get_id(user_data)) {
             uart.update_out_buffer();
         }
     }
@@ -128,14 +128,16 @@ impl Uart {
 
         let device_id = unsafe { uartInit(&config) };
 
-        UartManager::register(Uart {
-            id,
-            config,
+        UartManager::register(
+            Uart {
+                id,
+                config,
+                device_id,
+                in_buffer: VecDeque::new(),
+                out_buffer: Vec::new(),
+            },
             on_read,
-            device_id,
-            in_buffer: VecDeque::new(),
-            out_buffer: Vec::new(),
-        });
+        );
 
         debug_print_string(format!("Initialized on uart port: {}!", device_id));
 
