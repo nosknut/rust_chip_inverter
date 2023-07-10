@@ -5,5 +5,5 @@ elf = "demo/dummy_firmware.elf"
 firmware = "demo/dummy_firmware.hex"
 
 [[chip]]
-name = 'inverter'  # To use the chip in diagram.json, add a part with "chip-inverter" type.
-binary = 'target/wasm32-unknown-unknown/release/chip_inverter.wasm'
+name = 'uart-json'  # To use the chip in diagram.json, add a part with "chip-inverter" type.
+binary = 'target/wasm32-unknown-unknown/release/uart_json.wasm'
