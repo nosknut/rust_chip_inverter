@@ -1,5 +1,5 @@
 {
-  "name": "Uart Chip",
+  "name": "Uart Json",
   "author": "Knut Ola Nøsen",
   "pins": [
     "RX",

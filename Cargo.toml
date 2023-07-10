@@ -1,10 +1,11 @@
 [package]
-name = "chip_uart"
+name = "chip_uart_json"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 wokwi_chip_ll = "0.1"
+serde_json = "1.0"
 
 [lib]
 crate-type = ["cdylib"]

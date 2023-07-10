@@ -4,7 +4,7 @@
   "editor": "wokwi",
   "parts": [
     { "type": "wokwi-arduino-mega", "id": "mega", "top": -1.43, "left": -48.12, "attrs": {} },
-    { "type": "chip-uart", "id": "chip1", "top": -75.78, "left": 196.8, "attrs": {} }
+    { "type": "chip-uart-json", "id": "chip1", "top": -75.78, "left": 196.8, "attrs": {} }
   ],
   "connections": [
     [ "chip1:GND", "mega:GND.2", "black", [ "v0", "h49.81", "v259.2", "h-124.8" ] ],
